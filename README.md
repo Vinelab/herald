@@ -1,66 +1,122 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sr. Backend Engineer – Coding Skill Assessment
+### Objective
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+The purpose of this assessment is to evaluate your understanding of PHP OOP & Laravel. Focusing on the aspects of Inversion of Control, Unit Testing and Data Transfer Objects (DTOs).
 
-## About Laravel
+**Herald** is a Laravel application that fetches data from several API endpoints, reformats them into a proprietary format and publishes them into a RabbitMQ queue. However, its tests are currently failing, and we need your help to have them pass! And one more addition to its feature set.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Pull Code
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. Go to [https://github.com/vinelab/herald](https://github.com/vinelab/herald)
+2. Fork the repository to your account
+3. Clone the forked repository to begin 
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Info**
 
-## Learning Laravel
+* Laravel version: ^9.19
+* PHP version: 8.1 (present in the container using Laravel Sail)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+There are two files to be used as a starting point: `app/Console/Commands/FetchCreatorInsights.php `and `tests/Feature/FetchCreatorInsightsTest.php`.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Running Tests
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+The application uses [Laravel Sail](https://laravel.com/docs/9.x/sail) so you could simply use `sail up -d` to launch the container and `sail shell` to grab a terminal session and run the test with
 
-## Laravel Sponsors
+```bash
+php artisan test --filter FetchCreatorInsightsTest
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+The test incorporates mocking of HTTP calls and queue interaction in order to keep the test local. This means that you won’t need RabbitMQ installed or any prior RBMQ knowledge since the test mocks the connection and replaces it with an expectation.
 
-### Premium Partners
+When you first pull the repo and run the test, it is normal to get an error and for the test not to pass, more details on that in the tasks below.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+### Tasks
+#### 1. Fix The Test
 
-## Contributing
+It is time to squash those bugs! 🐞 The test’s expectation has an additional `mentions` field that isn’t present in the application logic for posts. However, this is not the only thing that’s wrong with the test and something else needs to be fixed before you get to this one, and we’ll leave it to you to figure that out! 😉
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+_P.S. if you see the following error when you run the test, that’s expected, and is what needs fixing._
 
-## Code of Conduct
+```
+stream_socket_client(): Unable to connect to tcp://localhost:5672 (Cannot assign requested address)
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+#### 2. Add `LookalikesCollection&lt;Lookalike>` to `AudienceInsights`
 
-## Security Vulnerabilities
+`LookalikesCollection` is a collection that carries instances of `Lookalike` objects that you need to create and add to the `AudienceInsights` object. A Lookalike object has the following properties:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+* `platform_id`: string -> retrieved from `user_id`
+* `username`: string -> retrieved from `username`
+* external_url: string -> retrieved from `url`
 
-## License
+Below is the full API response for audience insights:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```json
+{
+    "user_profile": {
+        "followers": 786543678,
+        "commercial_posts": [
+            {
+                "post_id": "5d74ea50-fa83-456d-aec0-2fc9b10c6e3c",
+                "caption": "Both average audiences at what little textile privilege me.",
+                "stat": {
+                    "likes": 320181219,
+                    "views": 381084731,
+                    "comments": 412294341
+                }
+            },
+            {
+                "post_id": "9d085ff1-ab58-3a7a-a5e0-a1445cf2af0a",
+                "caption": "Recusandae magni rerum quia aut fugit nobis suscipit inventore.",
+                "stat": {
+                    "likes": 2304314,
+                    "views": 201096481,
+                    "comments": 418938238
+                }
+            },
+            {
+                "post_id": "80aa6673-34b4-39c5-9342-b1ca9c13f414",
+                "caption": "Aliquid in aliquam consequatur.",
+                "stat": {
+                    "likes": 237498107,
+                    "views": 959715074,
+                    "comments": 741076808
+                }
+            }
+        ]
+    },
+    "audience_followers": {
+        "audience_lookalikes": [
+            {
+                "used_id": "abc2758a-4e16-367d-8cc8-704ad96a9cae",
+                "username": "fmayer",
+                "url": "https://fake.url/fmayer"
+            },
+            {
+                "used_id": "6c0c5fc4-dc8b-3b36-8ee3-a911ab9b4807",
+                "username": "langosh.ona",
+                "url": "https://fake.url/langosh.ona"
+            },
+            {
+                "used_id": "b4f9d1a1-1772-3c7c-812c-0953406f113c",
+                "username": "willy.kuhic",
+                "url": "https://fake.url/willy.kuhic"
+            }
+        ]
+    }
+}
+```
+
+_Hint: See <code>PostsCollection&lt;Post></code> in <code>AudienceInsights</code> for reference.</em>_
+
+# Submit Results
+
+In order to submit your solution please do the following:
+
+1. Create a new branch and push your solution to it
+2. Open a Pull Request to the main branch
+3. Invite us as collaborators to your forked repo:
+    * mulkave ([https://github.com/mulkave](https://github.com/mulkave))
+    * KinaneD ([https://github.com/kinaned](https://github.com/kinaned))
+
+Happy coding and best of luck!
