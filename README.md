@@ -3,7 +3,7 @@
 
 The purpose of this assessment is to evaluate your understanding of PHP OOP & Laravel. Focusing on the aspects of Inversion of Control, Unit Testing and Data Transfer Objects (DTOs).
 
-**Herald** is a Laravel application that fetches data from several API endpoints, reformats them into a proprietary format and publishes them into a RabbitMQ queue. However, its tests are currently failing, and we need your help to have them pass! And one more addition to its feature set.
+**Herald** is a Laravel application that fetches data from several API endpoints, reformat them into a proprietary format and publishes them into a RabbitMQ queue. However, its tests are currently failing, and we need your help to have them pass! And one more addition to its feature set.
 
 ### Pull Code
 
@@ -41,7 +41,7 @@ _P.S. if you see the following error when you run the test, that’s expected, a
 stream_socket_client(): Unable to connect to tcp://localhost:5672 (Cannot assign requested address)
 ```
 
-#### 2. Add `LookalikesCollection&lt;Lookalike>` to `AudienceInsights`
+#### 2. Add `LookalikesCollection<Lookalike>` to `AudienceInsights`
 
 `LookalikesCollection` is a collection that carries instances of `Lookalike` objects that you need to create and add to the `AudienceInsights` object. A Lookalike object has the following properties:
 
@@ -107,7 +107,7 @@ Below is the full API response for audience insights:
 }
 ```
 
-_Hint: See <code>PostsCollection&lt;Post></code> in <code>AudienceInsights</code> for reference.</em>_
+_Hint: See <code>PostsCollection<Post></code> in <code>AudienceInsights</code> for reference.</em>_
 
 # Submit Results
 
