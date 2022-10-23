@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Entities\Account;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
@@ -52,16 +51,6 @@ class FetchCreatorInsightsTest extends TestCase
         ];
     }
 
-    private function expectedAccount(array $fake): array
-    {
-        return [
-            'username' => $fake['username'],
-            'platform_id' => $fake['user_id'],
-            'gender' => $fake['gender'],
-            'phone_numbers' => $fake['phone_numbers'],
-        ];
-    }
-
     private function fakeAudience(): array
     {
         return [
@@ -96,7 +85,44 @@ class FetchCreatorInsightsTest extends TestCase
                         ]
                     ],
                 ],
+                'audience_followers' => [
+                    'audience_lookalikes' => [
+                        [
+                            'used_id' => fake()->uuid(),
+                            'username' => fake()->userName(),
+                            'url' => fake()->url(),
+                        ],
+                        [
+                            'used_id' => fake()->uuid(),
+                            'username' => fake()->userName(),
+                            'url' => fake()->url(),
+                        ],
+                        [
+                            'used_id' => fake()->uuid(),
+                            'username' => fake()->userName(),
+                            'url' => fake()->url(),
+                        ],
+                    ],
+                ],
             ],
+        ];
+    }
+
+    private function expectedInsights($account, $audience): string
+    {
+        return json_encode([
+            'account' => $this->expectedAccount($account),
+            'audience' => $this->expectedAudience($audience),
+        ]);
+    }
+
+    private function expectedAccount(array $fake): array
+    {
+        return [
+            'username' => $fake['username'],
+            'platform_id' => $fake['user_id'],
+            'gender' => $fake['gender'],
+            'phone_numbers' => $fake['phone_numbers'],
         ];
     }
 
@@ -105,7 +131,7 @@ class FetchCreatorInsightsTest extends TestCase
         $expected = [];
         $expected['global_audience_size'] = Arr::get($fake, 'user_profile.followers');
 
-        foreach(Arr::get($fake, 'user_profile.commercial_posts') as $post) {
+        foreach (Arr::get($fake, 'user_profile.commercial_posts') as $post) {
             $expected['posts'][] = [
                 'id' => Arr::get($post, 'post_id'),
                 'views' => Arr::get($post, 'stat.views'),
@@ -117,13 +143,5 @@ class FetchCreatorInsightsTest extends TestCase
         }
 
         return $expected;
-    }
-
-    private function expectedInsights($account, $audience): string
-    {
-        return json_encode([
-            'account' => $this->expectedAccount($account),
-            'audience' => $this->expectedAudience($audience),
-        ]);
     }
 }
