@@ -88,17 +88,17 @@ Below is the full API response for audience insights:
     "audience_followers": {
         "audience_lookalikes": [
             {
-                "used_id": "abc2758a-4e16-367d-8cc8-704ad96a9cae",
+                "user_id": "abc2758a-4e16-367d-8cc8-704ad96a9cae",
                 "username": "fmayer",
                 "url": "https://fake.url/fmayer"
             },
             {
-                "used_id": "6c0c5fc4-dc8b-3b36-8ee3-a911ab9b4807",
+                "user_id": "6c0c5fc4-dc8b-3b36-8ee3-a911ab9b4807",
                 "username": "langosh.ona",
                 "url": "https://fake.url/langosh.ona"
             },
             {
-                "used_id": "b4f9d1a1-1772-3c7c-812c-0953406f113c",
+                "user_id": "b4f9d1a1-1772-3c7c-812c-0953406f113c",
                 "username": "willy.kuhic",
                 "url": "https://fake.url/willy.kuhic"
             }
