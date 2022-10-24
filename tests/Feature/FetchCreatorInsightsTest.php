@@ -30,6 +30,9 @@ class FetchCreatorInsightsTest extends TestCase
             'sample.audience.url' => Http::response($audience),
         ]);
 
+//        app()->bind(Producer::class, function () {
+//            return $this->createMock(Producer::class);
+//        });
         // mock queue producer
         $mProducer = Mockery::mock(Producer::class);
         $mProducer->shouldReceive('send')
