@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Entities\Account;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Mockery;
+use PhpAmqpLib\Channel\AMQPChannel;
 use Tests\TestCase;
+use Vinelab\Bowler\Connection;
 use Vinelab\Bowler\Producer;
 
 class FetchCreatorInsightsTest extends TestCase
@@ -29,6 +30,15 @@ class FetchCreatorInsightsTest extends TestCase
             'sample.account.url' => Http::response($account),
             'sample.audience.url' => Http::response($audience),
         ]);
+
+        // mock connection
+        $mChannel = Mockery::mock(AMQPChannel::class);
+        $mChannel->shouldReceive('exchange_declare');
+
+        $mConnection = Mockery::mock(Connection::class);
+        $mConnection->shouldReceive('getChannel')->once()->withNoArgs()->andReturn($mChannel);
+
+        app()->instance(Connection::class, $mConnection);
 
         // mock queue producer
         $mProducer = Mockery::mock(Producer::class);
@@ -71,6 +81,7 @@ class FetchCreatorInsightsTest extends TestCase
                     [
                         'post_id' => fake()->uuid(),
                         'caption' => fake()->sentence(),
+                        'mentions' => fake()->userName(),
                         'stat' => [
                             'views' => fake()->numberBetween(1000, 999999999),
                             'likes' => fake()->numberBetween(1000, 999999999),
@@ -80,6 +91,7 @@ class FetchCreatorInsightsTest extends TestCase
                     [
                         'post_id' => fake()->uuid(),
                         'caption' => fake()->sentence(),
+                        'mentions' => fake()->userName(),
                         'stat' => [
                             'views' => fake()->numberBetween(1000, 999999999),
                             'likes' => fake()->numberBetween(1000, 999999999),
@@ -89,6 +101,7 @@ class FetchCreatorInsightsTest extends TestCase
                     [
                         'post_id' => fake()->uuid(),
                         'caption' => fake()->sentence(),
+                        'mentions' => fake()->userName(),
                         'stat' => [
                             'views' => fake()->numberBetween(1000, 999999999),
                             'likes' => fake()->numberBetween(1000, 999999999),
@@ -97,6 +110,25 @@ class FetchCreatorInsightsTest extends TestCase
                     ],
                 ],
             ],
+            "audience_followers" => [
+                "audience_lookalikes" => [
+                    [
+                        "user_id" => "abc2758a-4e16-367d-8cc8-704ad96a9cae",
+                        "username" => "fmayer",
+                        "url" => "https://fake.url/fmayer"
+                    ],
+                    [
+                        "user_id" => "6c0c5fc4-dc8b-3b36-8ee3-a911ab9b4807",
+                        "username" => "langosh.ona",
+                        "url" => "https://fake.url/langosh.ona"
+                    ],
+                    [
+                        "user_id" => "b4f9d1a1-1772-3c7c-812c-0953406f113c",
+                        "username" => "willy.kuhic",
+                        "url" => "https://fake.url/willy.kuhic"
+                    ]
+                ]
+            ]
         ];
     }
 
@@ -105,7 +137,7 @@ class FetchCreatorInsightsTest extends TestCase
         $expected = [];
         $expected['global_audience_size'] = Arr::get($fake, 'user_profile.followers');
 
-        foreach(Arr::get($fake, 'user_profile.commercial_posts') as $post) {
+        foreach (Arr::get($fake, 'user_profile.commercial_posts') as $post) {
             $expected['posts'][] = [
                 'id' => Arr::get($post, 'post_id'),
                 'views' => Arr::get($post, 'stat.views'),
