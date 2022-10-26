@@ -39,6 +39,7 @@ class FetchCreatorInsights extends Command
         $insights = CreatorInsights::make($account, $audience);
 
         $producer = new Producer(app(Connection::class));
+        $producer->setup('reporting_exchange');
         $producer->send($insights->toJson());
 
         return Command::SUCCESS;

@@ -44,7 +44,6 @@ class FetchCreatorInsightsTest extends TestCase
         $mProducer->shouldReceive('send')
             ->with($this->expectedInsights($account, $audience));
         app()->instance(Producer::class, $mProducer);
-
         // execute
         $result = Artisan::call('fetch:insights');
 
