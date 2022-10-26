@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Entities\Account;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
