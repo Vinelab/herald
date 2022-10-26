@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Entities\Account;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Mockery;
+use PhpAmqpLib\Channel\AMQPChannel;
 use Tests\TestCase;
+use Vinelab\Bowler\Connection;
 use Vinelab\Bowler\Producer;
 
 class FetchCreatorInsightsTest extends TestCase
@@ -29,9 +32,14 @@ class FetchCreatorInsightsTest extends TestCase
             'sample.audience.url' => Http::response($audience),
         ]);
 
-//        app()->bind(Producer::class, function () {
-//            return $this->createMock(Producer::class);
-//        });
+        $mChannel = Mockery::mock(AMQPChannel::class);
+        $mChannel->shouldReceive('exchange_declare');
+
+        $mConnection = Mockery::mock(Connection::class);
+        $mConnection->shouldReceive('getChannel')->once()->withNoArgs()->andReturn($mChannel);
+
+        app()->instance(Connection::class, $mConnection);
+
         // mock queue producer
         $mProducer = Mockery::mock(Producer::class);
         $mProducer->shouldReceive('send')
@@ -54,6 +62,16 @@ class FetchCreatorInsightsTest extends TestCase
         ];
     }
 
+    private function expectedAccount(array $fake): array
+    {
+        return [
+            'username' => $fake['username'],
+            'platform_id' => $fake['user_id'],
+            'gender' => $fake['gender'],
+            'phone_numbers' => $fake['phone_numbers'],
+        ];
+    }
+
     private function fakeAudience(): array
     {
         return [
@@ -63,6 +81,7 @@ class FetchCreatorInsightsTest extends TestCase
                     [
                         'post_id' => fake()->uuid(),
                         'caption' => fake()->sentence(),
+                        'mentions' => fake()->userName(),
                         'stat' => [
                             'views' => fake()->numberBetween(1000, 999999999),
                             'likes' => fake()->numberBetween(1000, 999999999),
@@ -72,6 +91,7 @@ class FetchCreatorInsightsTest extends TestCase
                     [
                         'post_id' => fake()->uuid(),
                         'caption' => fake()->sentence(),
+                        'mentions' => fake()->userName(),
                         'stat' => [
                             'views' => fake()->numberBetween(1000, 999999999),
                             'likes' => fake()->numberBetween(1000, 999999999),
@@ -81,51 +101,15 @@ class FetchCreatorInsightsTest extends TestCase
                     [
                         'post_id' => fake()->uuid(),
                         'caption' => fake()->sentence(),
+                        'mentions' => fake()->userName(),
                         'stat' => [
                             'views' => fake()->numberBetween(1000, 999999999),
                             'likes' => fake()->numberBetween(1000, 999999999),
                             'comments' => fake()->numberBetween(1000, 999999999),
                         ]
-                    ],
-                ],
-                'audience_followers' => [
-                    'audience_lookalikes' => [
-                        [
-                            'used_id' => fake()->uuid(),
-                            'username' => fake()->userName(),
-                            'url' => fake()->url(),
-                        ],
-                        [
-                            'used_id' => fake()->uuid(),
-                            'username' => fake()->userName(),
-                            'url' => fake()->url(),
-                        ],
-                        [
-                            'used_id' => fake()->uuid(),
-                            'username' => fake()->userName(),
-                            'url' => fake()->url(),
-                        ],
                     ],
                 ],
             ],
-        ];
-    }
-
-    private function expectedInsights($account, $audience): string
-    {
-        return json_encode([
-            'account' => $this->expectedAccount($account),
-            'audience' => $this->expectedAudience($audience),
-        ]);
-    }
-
-    private function expectedAccount(array $fake): array
-    {
-        return [
-            'username' => $fake['username'],
-            'platform_id' => $fake['user_id'],
-            'gender' => $fake['gender'],
-            'phone_numbers' => $fake['phone_numbers'],
         ];
     }
 
@@ -146,5 +130,13 @@ class FetchCreatorInsightsTest extends TestCase
         }
 
         return $expected;
+    }
+
+    private function expectedInsights($account, $audience): string
+    {
+        return json_encode([
+            'account' => $this->expectedAccount($account),
+            'audience' => $this->expectedAudience($audience),
+        ]);
     }
 }
