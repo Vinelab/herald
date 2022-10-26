@@ -12,6 +12,7 @@ class Post extends Entity
         public readonly int $likes,
         public readonly int $comments,
         public readonly string $caption,
+        public readonly string $mentions,
     ) {}
 
     public static function make(array $data): self
@@ -22,6 +23,7 @@ class Post extends Entity
             Arr::get($data, 'stat.likes'),
             Arr::get($data, 'stat.comments'),
             Arr::get($data, 'caption'),
+            Arr::get($data, 'mentions'),
         );
     }
 }
